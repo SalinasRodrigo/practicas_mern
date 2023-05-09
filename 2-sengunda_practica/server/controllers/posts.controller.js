@@ -17,7 +17,7 @@ export const createPost = async (req, res)=> {
         const {title, description} = req.body
         let image;
         //si existe una imagen en el reques, se guardara el cloudinary
-        if(req.files.image){
+        if(req.files?.image){
             const result = await uploadImage(req.files.image.tempFilePath)
             await fs.remove(req.files.image.tempFilePath)
             console.log(result)
