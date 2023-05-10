@@ -3,15 +3,17 @@ import * as Yup from "yup";
 import { UsePost } from "../context/postContex";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {AiOutlineLoading3Quarters} from 'react-icons/ai'
 
 export function PostForm() {
   const { createPost, getPost, updatePost } = UsePost();
   const navigate = useNavigate();
-  const params = useParams();
   const [post, setPost] = useState({
     title: "",
     description: "",
+    image: null
   });
+  const params = useParams();
 
   useEffect(() => {
     (async () => {
@@ -23,7 +25,7 @@ export function PostForm() {
         });
       }
     })();
-  }, []);
+  }, [params.id, getPost]);
 
   return (
     <div className="flex items-center justify-center">
@@ -43,15 +45,17 @@ export function PostForm() {
             description: Yup.string().required("Description is required"),
           })}
           onSubmit={async (values, actions) => {
-            if(params.id){
-              await updatePost(params.id, values)
-            }else{
+            if (params.id) {
+              await updatePost(params.id, values);
+            } else {
               await createPost(values);
             }
+
+            actions.setSubmitting(false)
             navigate("/");
           }}
         >
-          {({ handleSubmit }) => (
+          {({ handleSubmit, setFieldValue, isSubmitting }) => (
             <Form onSubmit={handleSubmit}>
               <label
                 htmlFor="title"
@@ -90,11 +94,28 @@ export function PostForm() {
                 name="description"
               />
 
+              <label
+                htmlFor="image"
+                className="text-sm block font-bold mb-2 text-gray-400"
+              >
+                Image
+              </label>
+              <input
+                type="file"
+                name="image"
+                className="px-3 py-2 focus:outline-none rounded bg-gray-600 text-white w-full"
+                onChange={(e) => setFieldValue("image", e.target.files[0])}
+              />
+
               <button
                 type="submit"
-                className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded mt-2 text-white focus:outline-none disabled:bg-indigo-400"
+                className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded mt-2 text-white focus:outline-none
+                 disabled:bg-indigo-400"
+                disabled={isSubmitting}
               >
-                Save
+                {isSubmitting ? (
+                  <AiOutlineLoading3Quarters className="animate-spin h-5 w-5"/>
+                ) : 'Save'}
               </button>
             </Form>
           )}
